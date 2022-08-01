@@ -7,10 +7,10 @@ services:
     volumes:
       - /var/docker/redmine/data:/home/redmine/data
       - /var/docker/redmine/redmine-log:/var/log/redmine
-#      - ./data/files:/usr/src/redmine/files
-#      - ./data/plugins:/usr/src/redmine/plugins
-#      - ./data/themes:/usr/src/redmine/public/themes
-#      - ./data/db:/usr/src/redmine/sqlite
+      - /var/docker/redmine/files:/usr/src/redmine/files
+      - /var/docker/redmine/plugins:/usr/src/redmine/plugins
+#      - /var/docker/redmine/themes:/usr/src/redmine/public/themes
+#      - /var/docker/redmine/sqlite:/usr/src/redmine/sqlite
     ports:
       - 10083:80
       
