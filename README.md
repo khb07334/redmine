@@ -10,7 +10,6 @@ git clone --depth 1 https://github.com/syagawa/redmine_absolute_datetime && \
 git clone --depth 1 https://github.com/haru/redmine_wiki_extensions && \
 git clone --depth 1 https://github.com/suer/redmine_japanese_help && \
 git clone --depth 1 https://github.com/haru/redmine_theme_changer && \
-git clone --depth 1 https://github.com/vividtone/redmine_gantt_with_date.git && \
 git clone --depth 1 https://github.com/two-pack/redmine_xlsx_format_issue_exporter.git
 
 ■テーマ(/home/redmine/data/themes)
