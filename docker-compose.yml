@@ -1,24 +1,53 @@
 version: '2'
 
 services:
+  postgresql:
+    image: sameersbn/postgresql:9.6-4
+    environment:
+      - TZ=Asia/Tokyo
+      - DB_NAME=redmine_production
+      - DB_USER=redmine
+      - DB_PASS=password
+    volumes:
+      - /var/docker/redmine/postgresql:/var/lib/postgresql
+    ports:
+      - 5431:5432
+    restart: always
+
+  memcached:
+    image: sameersbn/memcached:latest
+    container_name: memcached
+    environment:
+      - MEMCACHED_CACHE_SIZE=128
+      - MEMCACHED_MAX_CONNECTIONS=2000
+      - MEMCACHED_THREADS=4
+      - MEMCACHED_MAX_ITEM_SIZE=8388608
+    ports:
+      - 11211:11211
+    restart: always
+
   redmine:
-#    image: redmine:4.1
+#    build: sameersbn/
     image: sameersbn/redmine:5.0.2
     volumes:
-      - /var/docker/redmine/data:/home/redmine/data
+      - /var/docker/redmine:/home/redmine/data
       - /var/docker/redmine/redmine-log:/var/log/redmine
-      - /var/docker/redmine/files:/usr/src/redmine/files
-      - /var/docker/redmine/plugins:/usr/src/redmine/plugins
-#      - /var/docker/redmine/themes:/usr/src/redmine/public/themes
-#      - /var/docker/redmine/sqlite:/usr/src/redmine/sqlite
+#      - /var/docker/redmine/database.yml:/home/redmine/redmine/config/database.yml
+#      - /var/docker/redmine:/home/redmine/redmine
+#      - /var/docker/redmine:/home/redmine/data
+#      - /home/redmine/redmine/config
+#      - /var/docker/redmine/sqlite:/home/redmine/redmine/sqlite
     ports:
       - 10083:80
-      
+    restart: always
+
     depends_on:
     - postgresql
+    - memcached
 
     environment:
     - TZ=Asia/Tokyo
+    # DBの設定
     - DB_ADAPTER=postgresql
     - DB_HOST=postgresql
     - DB_PORT=5432
@@ -26,20 +55,24 @@ services:
     - DB_PASS=password
     - DB_NAME=redmine_production
     - DB_SSL_MODE=prefer
-
+    # redmine http設定
     - REDMINE_PORT=10083
     - REDMINE_HTTPS=false
+    - REDMINE_CONCURRENT_UPLOADS=2
+    # URLプレフィックス設定
     - REDMINE_RELATIVE_URL_ROOT=
     - REDMINE_SECRET_TOKEN=
-
     - REDMINE_SUDO_MODE_ENABLED=false
     - REDMINE_SUDO_MODE_TIMEOUT=15
-
-    - REDMINE_CONCURRENT_UPLOADS=2
-
-    - REDMINE_BACKUP_SCHEDULE=
+    # バックアップ設定
+    - REDMINE_BACKUP_SCHEDULE=daily
     - REDMINE_BACKUP_EXPIRY=
     - REDMINE_BACKUP_TIME=
+    # memcached の設定
+    - MEMCACHE_HOST=memcached
+    - MEMCACHE_PORT=11211
+  
+    - REDMINE_PLUGINS_MIGRATE=true
 
     - SMTP_ENABLED=false
     - SMTP_METHOD=smtp
@@ -59,12 +92,12 @@ services:
     - IMAP_SSL=true
     - IMAP_INTERVAL=30
 
-  postgresql:
-    image: sameersbn/postgresql:9.6-4
-    environment:
-      - TZ=Asia/Tokyo
-      - DB_NAME=redmine_production
-      - DB_USER=redmine
-      - DB_PASS=password
+  lb:
+    image: 'bitnami/nginx'
+    depends_on:
+      - redmine
     volumes:
-      - /var/docker/redmine/postgresql:/var/lib/postgresql
+      - /var/docker/redmine/nginx_data:/bitnami/nginx
+    ports:
+      - 80:80
+      - 443:443
