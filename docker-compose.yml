@@ -9,9 +9,10 @@ services:
       - DB_USER=redmine
       - DB_PASS=password
     volumes:
-      - /var/docker/redmine/postgresql:/var/lib/postgresql
+#      - /var/docker/redmine/postgresql:/var/lib/postgresql
+      - postgres_volume:/var/lib/postgresql
     ports:
-      - 5431:5432
+      - 5432:5432
     restart: always
 
   memcached:
@@ -168,3 +169,7 @@ services:
     ports:
       - 80:80
       - 443:443
+
+volumes:
+  postgres_volume: # 名前付きvolumeを定義
+
