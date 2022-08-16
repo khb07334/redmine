@@ -27,7 +27,7 @@ services:
     restart: always
 
   redmine:
-#    build: sameersbn/
+#    build: .
     image: sameersbn/redmine:5.0.2
     volumes:
       - /var/docker/redmine:/home/redmine/data
